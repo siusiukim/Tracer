@@ -17,6 +17,21 @@ vec3f Material::shade( Scene *scene, const ray& r, const isect& i ) const
 	// shading model, including the contributions of all the light sources.
     // You will need to call both distanceAttenuation() and shadowAttenuation()
     // somewhere in your code in order to compute shadows and light falloff.
-
-	return kd;
+	//!!!!!!!! TODO If we ever want to do the ambient light, we need to update the shade !!!!!!!!! 
+	
+	vec3f I = ke;
+	vec3f transparency = vec3f(1, 1, 1) - kt;
+	
+	for (Scene::cliter iterator = scene->beginLights(); iterator != scene->endLights(); iterator++) {
+		vec3f p = r.at(i.t);
+		vec3f out_p = p + i.N * RAY_EPSILON;
+		//According to Phong Model
+		vec3f attenuation = (*iterator)->distanceAttenuation(p)*(*iterator)->shadowAttenuation(out_p);
+		vec3f diffuse = prod(transparency, maximum((*iterator)->getDirection(p).normalize().dot(i.N), 0.0) * kd);
+		vec3f reflection = (2 * (i.N.dot((*iterator)->getDirection(p).normalize()))*i.N - (*iterator)->getDirection(p)).normalize();
+		vec3f specular = pow(maximum(-r.getDirection() * (reflection), 0.0), shininess*128.0) * ks;
+		I += prod(attenuation, (diffuse + specular));
+	}
+	I = I.clamp();
+	return I;
 }
