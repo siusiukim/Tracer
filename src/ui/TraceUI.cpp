@@ -78,6 +78,17 @@ void TraceUI::cb_about(Fl_Menu_* o, void* v)
 	fl_message("RayTracer Project, FLTK version for CS 341 Spring 2002. Latest modifications by Jeff Maurer, jmaurer@cs.washington.edu");
 }
 
+void TraceUI::cb_loadBackground(Fl_Menu_* o, void* v)
+{
+	TraceUI* pUI = whoami(o);
+
+	char* newfile = fl_file_chooser("Open Image?", "*.bmp", NULL);
+	if (newfile != NULL)
+	{
+		pUI->raytracer->loadBackground(newfile);
+	}
+}
+
 void TraceUI::cb_sizeSlides(Fl_Widget* o, void* v)
 {
 	TraceUI* pUI=(TraceUI*)(o->user_data());
@@ -86,6 +97,22 @@ void TraceUI::cb_sizeSlides(Fl_Widget* o, void* v)
 	int	height = (int)(pUI->m_nSize / pUI->raytracer->aspectRatio() + 0.5);
 	pUI->m_traceGlWindow->resizeWindow( pUI->m_nSize, height );
 }
+
+void TraceUI::cb_constAttenSlides(Fl_Widget* o, void* v)
+{
+	((TraceUI*)(o->user_data()))->m_nConstAtten = float(((Fl_Slider *)o)->value());
+}
+
+void TraceUI::cb_linearAttenSlides(Fl_Widget* o, void* v)
+{
+	((TraceUI*)(o->user_data()))->m_nLinearAtten = float(((Fl_Slider *)o)->value());
+}
+
+void TraceUI::cb_quadAttenSlides(Fl_Widget* o, void* v)
+{
+	((TraceUI*)(o->user_data()))->m_nQuadAtten = float(((Fl_Slider *)o)->value());
+}
+
 
 void TraceUI::cb_depthSlides(Fl_Widget* o, void* v)
 {
@@ -199,9 +226,12 @@ int TraceUI::getDepth()
 Fl_Menu_Item TraceUI::menuitems[] = {
 	{ "&File",		0, 0, 0, FL_SUBMENU },
 		{ "&Load Scene...",	FL_ALT + 'l', (Fl_Callback *)TraceUI::cb_load_scene },
+		{ "&Load Background Image...",	FL_ALT + 'b', (Fl_Callback *)TraceUI::cb_loadBackground },
 		{ "&Save Image...",	FL_ALT + 's', (Fl_Callback *)TraceUI::cb_save_image },
 		{ "&Exit",			FL_ALT + 'e', (Fl_Callback *)TraceUI::cb_exit },
 		{ 0 },
+
+
 
 	{ "&Help",		0, 0, 0, FL_SUBMENU },
 		{ "&About",	FL_ALT + 'a', (Fl_Callback *)TraceUI::cb_about },
@@ -214,7 +244,7 @@ TraceUI::TraceUI() {
 	// init.
 	m_nDepth = 0;
 	m_nSize = 150;
-	m_mainWindow = new Fl_Window(100, 40, 320, 100, "Ray <Not Loaded>");
+	m_mainWindow = new Fl_Window(100, 400, 320, 500, "Ray <Not Loaded>");
 		m_mainWindow->user_data((void*)(this));	// record self to be used by static callback functions
 		// install menu bar
 		m_menubar = new Fl_Menu_Bar(0, 0, 320, 25);
@@ -245,6 +275,43 @@ TraceUI::TraceUI() {
 		m_sizeSlider->value(m_nSize);
 		m_sizeSlider->align(FL_ALIGN_RIGHT);
 		m_sizeSlider->callback(cb_sizeSlides);
+
+		m_constAttenSlider = new Fl_Value_Slider(10, 80, 180, 20, "Attenuation, Constant");
+		m_constAttenSlider->user_data((void*)(this));	// record self to be used by static callback functions
+		m_constAttenSlider->type(FL_HOR_NICE_SLIDER);
+		m_constAttenSlider->labelfont(FL_COURIER);
+		m_constAttenSlider->labelsize(12);
+		m_constAttenSlider->minimum(0.0f);
+		m_constAttenSlider->maximum(1.0f);
+		m_constAttenSlider->step(0.01f);
+		m_constAttenSlider->value(m_nConstAtten);
+		m_constAttenSlider->align(FL_ALIGN_RIGHT);
+		m_constAttenSlider->callback(cb_constAttenSlides);
+
+		m_linearAttenSlider = new Fl_Value_Slider(10, 105, 180, 20, "Attenuation, Linear");
+		m_linearAttenSlider->user_data((void*)(this));	// record self to be used by static callback functions
+		m_linearAttenSlider->type(FL_HOR_NICE_SLIDER);
+		m_linearAttenSlider->labelfont(FL_COURIER);
+		m_linearAttenSlider->labelsize(12);
+		m_linearAttenSlider->minimum(0.0f);
+		m_linearAttenSlider->maximum(1.0f);
+		m_linearAttenSlider->step(0.01f);
+		m_linearAttenSlider->value(m_nLinearAtten);
+		m_linearAttenSlider->align(FL_ALIGN_RIGHT);
+		m_linearAttenSlider->callback(cb_linearAttenSlides);
+
+		m_quadAttenSlider = new Fl_Value_Slider(10, 130, 180, 20, "Attenuation, Quadratic");
+		m_quadAttenSlider->user_data((void*)(this));	// record self to be used by static callback functions
+		m_quadAttenSlider->type(FL_HOR_NICE_SLIDER);
+		m_quadAttenSlider->labelfont(FL_COURIER);
+		m_quadAttenSlider->labelsize(12);
+		m_quadAttenSlider->minimum(0.0f);
+		m_quadAttenSlider->maximum(1.0f);
+		m_quadAttenSlider->step(0.01f);
+		m_quadAttenSlider->value(m_nQuadAtten);
+		m_quadAttenSlider->align(FL_ALIGN_RIGHT);
+		m_quadAttenSlider->callback(cb_quadAttenSlides);
+
 
 		m_renderButton = new Fl_Button(240, 27, 70, 25, "&Render");
 		m_renderButton->user_data((void*)(this));

@@ -5,6 +5,8 @@
 
 class Camera
 {
+	friend class RayTracer;
+
 public:
     Camera();
     void rayThrough( double x, double y, ray &r );

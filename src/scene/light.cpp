@@ -49,8 +49,10 @@ double PointLight::distanceAttenuation( const vec3f& P ) const
 
 	double d2 = (P - position).length_squared();
 	double d = sqrt(d2);
-	
-	return 1.0;
+	extern TraceUI* traceUI;
+	double coeff = traceUI->m_nConstAtten + traceUI->m_nLinearAtten * d +traceUI->m_nQuadAtten * d2;
+	if (coeff == 0) return 1.0f;
+	else return 1.0 / max<double>(coeff, 1.0);
 }
 
 vec3f PointLight::getColor( const vec3f& P ) const

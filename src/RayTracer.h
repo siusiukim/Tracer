@@ -8,6 +8,7 @@
 
 class RayTracer
 {
+	
 public:
     RayTracer();
     ~RayTracer();
@@ -15,7 +16,7 @@ public:
     vec3f trace( Scene *scene, double x, double y );
 	vec3f traceRay( Scene *scene, const ray& r, const vec3f& thresh, int depth );
 
-
+	
 	void getBuffer( unsigned char *&buf, int &w, int &h );
 	double aspectRatio();
 	void traceSetup( int w, int h );
@@ -23,10 +24,16 @@ public:
 	void tracePixel( int i, int j );
 
 	bool loadScene( char* fn );
-
+	void loadBackground(char* fn);
+	vec3f readBackgroundColeur(double x, double y);
 	bool sceneLoaded();
 
 private:
+	int backgroundWidth;
+	int backgroundHeight;
+	int marginX;
+	int marginY;
+	unsigned char* backgroundImage = NULL;
 	unsigned char *buffer;
 	int buffer_width, buffer_height;
 	int bufferSize;

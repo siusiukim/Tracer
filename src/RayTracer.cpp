@@ -9,6 +9,7 @@
 #include "fileio/read.h"
 #include "fileio/parse.h"
 #include "ui/TraceUI.h"
+#include "fileio/bitmap.h"
 
 extern TraceUI* traceUI;
 // Trace a top-level ray through normalized window coordinates (x,y)
@@ -64,8 +65,13 @@ vec3f RayTracer::traceRay( Scene *scene, const ray& r,
 		// No intersection.  This ray travels to infinity, so we color
 		// it according to the background color, which in this (simple) case
 		// is just black.
-
-		return vec3f( 0.0, 0.0, 0.0 );
+		if (backgroundImage) {
+			double x =((scene->getCamera()->u).dot( r.getDirection()));
+			double y = ((scene->getCamera()->v).dot(r.getDirection()));
+			double z = ((scene->getCamera()->look).dot(r.getDirection()));
+			return readBackgroundColeur(x / z + 0.5, y / z + 0.5);
+		}
+		else return vec3f(0.0, 0.0, 0.0);
 	}
 }
 
@@ -161,6 +167,22 @@ void RayTracer::traceLines( int start, int stop )
 			tracePixel(i,j);
 }
 
+vec3f RayTracer::readBackgroundColeur(double x, double y) {
+	/*
+	if (x*backgroundWidth < marginX || x * backgroundWidth > marginX + backgroundWidth || y * backgroundHeight < marginY || y* backgroundHeight > marginY + backgroundHeight) return vec3f(0.0, 0.0, 0.0);
+	double r = backgroundImage[int((y*backgroundHeight-marginY)*backgroundWidth + x*backgroundWidth- marginX) * 3] / 255.0;
+	double g = backgroundImage[int((y*backgroundHeight-marginY)*backgroundWidth + x*backgroundWidth- marginX) * 3 + 1] / 255.0;
+	double b = backgroundImage[int((y*backgroundHeight-marginY)*backgroundWidth + x*backgroundWidth- marginX) * 3 + 1 ] / 255.0;*/
+	
+	if (x*backgroundWidth < 0 || x * backgroundWidth > backgroundWidth || y * backgroundHeight < 0 || y * backgroundHeight >backgroundHeight) return vec3f(0.0, 0.0, 0.0);
+	double r = backgroundImage[int((y*backgroundHeight)*backgroundWidth + x * backgroundWidth) * 3] / 255.0;
+	double g = backgroundImage[int((y*backgroundHeight)*backgroundWidth + x * backgroundWidth) * 3 + 1] / 255.0;
+	double b = backgroundImage[int((y*backgroundHeight)*backgroundWidth + x * backgroundWidth) * 3 + 1] / 255.0;
+	
+	
+	return vec3f(r, g, b);
+}
+
 void RayTracer::tracePixel( int i, int j )
 {
 	vec3f col;
@@ -178,4 +200,13 @@ void RayTracer::tracePixel( int i, int j )
 	pixel[0] = (int)( 255.0 * col[0]);
 	pixel[1] = (int)( 255.0 * col[1]);
 	pixel[2] = (int)( 255.0 * col[2]);
+}
+
+void RayTracer::loadBackground(char* fn) {
+	unsigned char* bg = readBMP(fn, backgroundWidth, backgroundHeight);
+	
+	if (bg) {
+		if (backgroundImage) delete[] backgroundImage;
+		backgroundImage = bg;
+	}
 }
