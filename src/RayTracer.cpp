@@ -50,7 +50,8 @@ vec3f RayTracer::traceRay( Scene *scene, const ray& r,
 		{
 			// As illustrated in the book, we should always push out 
 			// the intersect point a little bit to avoid self-reflection
-			const vec3f &out_point = r.at(i.t);
+			
+			const vec3f &out_point = r.at(i.t) * RAY_EPSILON;
 			const double dotRN = i.N.dot(-r.getDirection());
 			const vec3f &reflection_dir = 2.0 * dotRN * i.N - (-r.getDirection()).normalize();
 			ray n_r(out_point, reflection_dir);
@@ -75,7 +76,7 @@ vec3f RayTracer::traceRay( Scene *scene, const ray& r,
 	}
 }
 
-RayTracer::RayTracer()
+RayTracer::RayTracer():
 {
 	buffer = NULL;
 	buffer_width = buffer_height = 256;
@@ -150,6 +151,7 @@ void RayTracer::traceSetup( int w, int h )
 		delete [] buffer;
 		buffer = new unsigned char[ bufferSize ];
 	}
+
 	memset( buffer, 0, w*h*3 );
 }
 

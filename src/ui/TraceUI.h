@@ -31,6 +31,7 @@ public:
 	Fl_Slider*			m_constAttenSlider;
 	Fl_Slider*			m_linearAttenSlider;
 	Fl_Slider*			m_quadAttenSlider;
+	Fl_Slider*			m_ambientLightSlider;
 
 
 	Fl_Button*			m_renderButton;
@@ -48,6 +49,7 @@ public:
 	float		m_nConstAtten;
 	float		m_nLinearAtten;
 	float		m_nQuadAtten;
+	double		m_nAmbientLight;
 
 
 private:
@@ -79,6 +81,8 @@ private:
 	static void cb_constAttenSlides(Fl_Widget* o, void* v);
 	static void cb_linearAttenSlides(Fl_Widget* o, void* v);
 	static void cb_quadAttenSlides(Fl_Widget* o, void* v);
+
+	static void cb_ambientLightSliders(Fl_Widget* o, void* v);
 
 	static void cb_loadBackground(Fl_Menu_* o, void* v);
 

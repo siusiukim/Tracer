@@ -113,6 +113,11 @@ void TraceUI::cb_quadAttenSlides(Fl_Widget* o, void* v)
 	((TraceUI*)(o->user_data()))->m_nQuadAtten = float(((Fl_Slider *)o)->value());
 }
 
+void TraceUI::cb_ambientLightSliders(Fl_Widget* o, void* v)
+{
+	((TraceUI*)(o->user_data()))->m_nAmbientLight = double(((Fl_Slider *)o)->value());
+}
+
 
 void TraceUI::cb_depthSlides(Fl_Widget* o, void* v)
 {
@@ -244,6 +249,8 @@ TraceUI::TraceUI() {
 	// init.
 	m_nDepth = 0;
 	m_nSize = 150;
+	m_nLinearAtten = m_nConstAtten = m_nQuadAtten = 0.0;
+	m_nAmbientLight = 0.0;
 	m_mainWindow = new Fl_Window(100, 400, 320, 500, "Ray <Not Loaded>");
 		m_mainWindow->user_data((void*)(this));	// record self to be used by static callback functions
 		// install menu bar
@@ -311,6 +318,18 @@ TraceUI::TraceUI() {
 		m_quadAttenSlider->value(m_nQuadAtten);
 		m_quadAttenSlider->align(FL_ALIGN_RIGHT);
 		m_quadAttenSlider->callback(cb_quadAttenSlides);
+
+		m_ambientLightSlider = new Fl_Value_Slider(10, 155, 180, 20, "Ambient Light");
+		m_ambientLightSlider->user_data((void*)(this));
+		m_ambientLightSlider->type(FL_HOR_NICE_SLIDER);
+		m_ambientLightSlider->labelfont(FL_COURIER);
+		m_ambientLightSlider->labelsize(12);
+		m_ambientLightSlider->minimum(0.0f);
+		m_ambientLightSlider->maximum(1.0f);
+		m_ambientLightSlider->step(0.01f);
+		m_ambientLightSlider->value(m_nAmbientLight);
+		m_ambientLightSlider->align(FL_ALIGN_RIGHT);
+		m_ambientLightSlider->callback(cb_ambientLightSliders);
 
 
 		m_renderButton = new Fl_Button(240, 27, 70, 25, "&Render");

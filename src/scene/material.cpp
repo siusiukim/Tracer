@@ -18,9 +18,13 @@ vec3f Material::shade( Scene *scene, const ray& r, const isect& i ) const
     // You will need to call both distanceAttenuation() and shadowAttenuation()
     // somewhere in your code in order to compute shadows and light falloff.
 	//!!!!!!!! TODO If we ever want to do the ambient light, we need to update the shade !!!!!!!!! 
-	
+	extern TraceUI* traceUI;
 	vec3f I = ke;
 	vec3f transparency = vec3f(1, 1, 1) - kt;
+	vec3f ambient = prod(vec3f(traceUI->m_nAmbientLight, traceUI->m_nAmbientLight, traceUI->m_nAmbientLight), scene->getAmbient());
+	ambient = prod(ka, ambient);
+
+	I += prod(transparency, ambient);
 	
 	for (Scene::cliter iterator = scene->beginLights(); iterator != scene->endLights(); iterator++) {
 		vec3f p = r.at(i.t);
